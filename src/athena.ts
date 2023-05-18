@@ -2,11 +2,11 @@ import axios from "axios";
 
 export class Athena {
     private readonly baseUrl: string;
-    private readonly globalExcept: (reason: any) => void;
+    private readonly defaultExcept: (reason: any) => void;
 
-    constructor(baseUrl: string, globalExcept: (reason: any) => void = () => {}) {
+    constructor(baseUrl: string, defaultExcept: (reason: any) => void = () => {}) {
         this.baseUrl = baseUrl;
-        this.globalExcept = globalExcept;
+        this.defaultExcept = defaultExcept;
     }
 
     public getEndpoint(ep: string): string {
@@ -16,19 +16,19 @@ export class Athena {
     public get(ep: string, pathVariables: string[] = [], handler: (status: number, message: string) => void, except?: (reason: any) => void): Promise<void> {
         return axios.get(this.getEndpoint(ep) + "/" + pathVariables.join("/")).then((r) => {
             handler(r.data.status, r.data.message);
-        }).catch(except ? except : this.globalExcept);
+        }).catch(except ? except : this.defaultExcept);
     }
 
     public post(ep: string, data: any, handler: (status: number, message: string) => void, except?: (reason: any) => void): Promise<void> {
         return axios.post(this.getEndpoint(ep), data).then((r) => {
             handler(r.data.status, r.data.message);
-        }).catch(except ? except : this.globalExcept);
+        }).catch(except ? except : this.defaultExcept);
     }
 }
 
 export function useAthena(
     baseUrl: string = "https://athena2.atatctech.com",
-    globalExcept: (reason: any) => void = () => {}
+    defaultExcept: (reason: any) => void = () => {}
 ): Athena {
-    return new Athena(baseUrl, globalExcept);
+    return new Athena(baseUrl, defaultExcept);
 }

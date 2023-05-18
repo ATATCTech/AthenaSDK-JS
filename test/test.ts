@@ -1,5 +1,11 @@
-import {useAthena} from "../src/athena.js";
-import {getUserByName} from "../src/index.js";
+import {useAthena, test} from "../src/index.js";
 
 const instance = useAthena("http://localhost:8080", (e) => {console.log(e);});
-getUserByName(instance, (u) => {console.log(u);}, () => {}, "ATATC").then();
+test(instance,
+    () => {
+    console.log("online");
+}, () => {
+    console.log("unavailable");
+}, undefined, () => {
+    console.log("offline");
+});

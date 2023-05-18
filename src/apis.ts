@@ -13,6 +13,20 @@ export class Rejection {
     }
 }
 
+export function test(
+    instance: Athena,
+    online: () => void,
+    unavailable: () => void,
+    other: (status: number) => void = () => {},
+    offline?: (reason: any) => void,
+): Promise<void> {
+    return instance.get("", [], (status) => {
+        if (Status.success(status)) online();
+        else if (Status.unavailable(status)) unavailable();
+        else other(status);
+    }, offline);
+}
+
 /**
  * Send an email request to sign up.
  * @param instance Athena instance

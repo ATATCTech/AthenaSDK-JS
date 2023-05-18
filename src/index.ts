@@ -8,6 +8,7 @@ export {
 } from "./aaa.js"
 
 export {
+    test,
     signUpRequest,
     signUp,
     signIn,
