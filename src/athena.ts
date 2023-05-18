@@ -26,9 +26,9 @@ export class Athena {
     }
 }
 
-export const useAthena = (
+export function useAthena(
     baseUrl: string = "https://athena2.atatctech.com",
     globalExcept: (reason: any) => void = () => {}
-): Athena => {
+): Athena {
     return new Athena(baseUrl, globalExcept);
-};
+}
