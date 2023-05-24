@@ -9,6 +9,7 @@ export {
 
 export {
     test,
+    userExists,
     signUpRequest,
     signUp,
     signIn,

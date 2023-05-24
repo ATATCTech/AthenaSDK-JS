@@ -28,6 +28,32 @@ export function test(
 }
 
 /**
+ * Check if such user exists.
+ * @param instance Athena instance
+ * @param exists callback if the user exists
+ * @param not callback if the user does not exist
+ * @param other callback on other status
+ * @param nameOrEmail
+ * @rejection 0 {@param nameOrEmail}
+ */
+export function userExists(
+    instance: Athena,
+    exists: () => void,
+    not: () => void,
+    other: (status: number) => void,
+    nameOrEmail: string
+): Promise<void> {
+    if (!nameCheck(nameOrEmail) && !emailCheck(nameOrEmail)) return new Promise((_, reject) => {reject(new Rejection(0, nameOrEmail));});
+    return instance.get("user_exists", [nameOrEmail], (status, message) => {
+        if (Status.success(status)) {
+            if (message === "true") exists();
+            else not();
+        }
+        else other(status);
+    });
+}
+
+/**
  * Send an email request to sign up.
  * @param instance Athena instance
  * @param success callback on success
