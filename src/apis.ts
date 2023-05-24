@@ -1,8 +1,8 @@
-import {User} from "./types.js";
-import Status from "./status.js";
-import {getToken, removeToken, setToken} from "./native.js";
-import {Athena} from "./athena.js";
-import {displayNameCheck, emailCheck, lengthCheck, nameCheck} from "./aaa.js";
+import {User} from "./types";
+import Status from "./status";
+import {getToken, removeToken, setToken} from "./native";
+import {Athena} from "./athena";
+import {displayNameCheck, emailCheck, lengthCheck, nameCheck} from "./aaa";
 
 export class Rejection {
     public readonly code: number;

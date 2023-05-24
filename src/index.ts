@@ -5,7 +5,7 @@ export {
     displayNameCheck,
     nameCheck,
     urlCheck
-} from "./aaa.js"
+} from "./aaa"
 
 export {
     test,
@@ -17,9 +17,9 @@ export {
     getUsers,
     getUsersWith,
     getUserByAAT
-} from "./apis.js";
+} from "./apis";
 
 export {
     Athena,
     useAthena
-} from "./athena.js"
+} from "./athena"
