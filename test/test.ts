@@ -1,4 +1,4 @@
-import {useAthena, test} from "../src/index.js";
+import {useAthena, test} from "../src";
 
 const instance = useAthena("http://localhost:8080", (e) => {console.log(e);});
 test(instance,
