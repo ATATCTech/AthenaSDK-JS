@@ -3,7 +3,7 @@ export function lengthCheck(string: string | null, minLength: number = 0, maxLen
 }
 
 export function emailCheck(email: string | null): boolean {
-    return lengthCheck(email, 2, 320) && /^[\w!#$%&'*+\-/=?^`{|}~]+(\.[\w!#$%&'*+\-/=?^`{|}~]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]+$/.test(email as string);
+    return lengthCheck(email, 5, 320) && /^[\w!#$%&'*+\-/=?^`{|}~]+(\.[\w!#$%&'*+\-/=?^`{|}~]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]+$/.test(email as string);
 }
 
 export function displayableCheck(string: string | null): boolean {
