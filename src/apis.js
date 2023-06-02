@@ -206,14 +206,14 @@ export function getUserByAAT(instance, success, other, tokenGetter = getToken, t
  * @param tokenGetter
  * @param tokenRemover
  * @rejection 0 token not found
- * @rejection 0 invalid {@param displayName}
+ * @rejection 1 both {@param displayName} and {@param profile} are invalid
  */
 export function setUser(instance, success, other, displayName, profile, tokenGetter = getToken, tokenRemover = removeToken) {
     const token = tokenGetter();
     if (token == null)
         return new Promise((_, reject) => { reject(new Rejection(0, "token not found")); });
-    if (!displayNameCheck(displayName))
-        return new Promise((_, reject) => { reject(new Rejection(1, displayName)); });
+    if (!displayNameCheck(displayName) && !lengthCheck(profile, undefined, 65536))
+        return new Promise((_, reject) => { reject(new Rejection(1)); });
     return instance.post("set_user", { token: token, user: { displayName: displayName, profile: profile } }, (status) => {
         if (Status.success(status))
             success();
