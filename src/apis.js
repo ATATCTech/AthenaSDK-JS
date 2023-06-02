@@ -196,4 +196,29 @@ export function getUserByAAT(instance, success, other, tokenGetter = getToken, t
         }
     });
 }
+/**
+ * Set user's basic information.
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param displayName
+ * @param profile
+ * @param tokenGetter
+ * @param tokenRemover
+ * @rejection 0 token not found
+ */
+export function setUser(instance, success, other, displayName, profile, tokenGetter = getToken, tokenRemover = removeToken) {
+    const token = tokenGetter();
+    if (token == null)
+        return new Promise((_, reject) => { reject(new Rejection(0, "token not found")); });
+    return instance.post("set_user", { token: token, user: { displayName: displayName, profile: profile } }, (status) => {
+        if (Status.success(status))
+            success();
+        else {
+            if (status === 0)
+                tokenRemover();
+            other(status);
+        }
+    });
+}
 //# sourceMappingURL=apis.js.map
