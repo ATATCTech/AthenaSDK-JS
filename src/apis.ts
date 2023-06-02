@@ -34,7 +34,7 @@ export function test(
  * @param not callback if the user does not exist
  * @param other callback on other status
  * @param nameOrEmail
- * @rejection 0 {@param nameOrEmail}
+ * @rejection 0 invalid {@param nameOrEmail}
  */
 export function userExists(
     instance: Athena,
@@ -62,10 +62,10 @@ export function userExists(
  * @param email
  * @param displayName
  * @param password
- * @rejection 0 {@param name}
- * @rejection 1 {@param email}
- * @rejection 2 {@param displayName}
- * @rejection 3 {@param password}
+ * @rejection 0 invalid {@param name}
+ * @rejection 1 invalid {@param email}
+ * @rejection 2 invalid {@param displayName}
+ * @rejection 3 invalid {@param password}
  */
 export function signUpRequest(
     instance: Athena,
@@ -245,6 +245,7 @@ export function getUserByAAT(
  * @param tokenGetter
  * @param tokenRemover
  * @rejection 0 token not found
+ * @rejection 0 invalid {@param displayName}
  */
 export function setUser(
     instance: Athena,
@@ -257,6 +258,7 @@ export function setUser(
 ): Promise<void> {
     const token = tokenGetter();
     if (token == null) return new Promise((_, reject) => {reject(new Rejection(0, "token not found"));});
+    if (!displayNameCheck(displayName)) return new Promise((_, reject) => {reject(new Rejection(1, displayName));});
     return instance.post("set_user", {token: token, user: {displayName: displayName, profile: profile}}, (status) => {
         if (Status.success(status)) success();
         else {

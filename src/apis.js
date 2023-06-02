@@ -26,7 +26,7 @@ export function test(instance, online, unavailable, other = () => { }, offline) 
  * @param not callback if the user does not exist
  * @param other callback on other status
  * @param nameOrEmail
- * @rejection 0 {@param nameOrEmail}
+ * @rejection 0 invalid {@param nameOrEmail}
  */
 export function userExists(instance, exists, not, other, nameOrEmail) {
     if (!nameCheck(nameOrEmail) && !emailCheck(nameOrEmail))
@@ -51,10 +51,10 @@ export function userExists(instance, exists, not, other, nameOrEmail) {
  * @param email
  * @param displayName
  * @param password
- * @rejection 0 {@param name}
- * @rejection 1 {@param email}
- * @rejection 2 {@param displayName}
- * @rejection 3 {@param password}
+ * @rejection 0 invalid {@param name}
+ * @rejection 1 invalid {@param email}
+ * @rejection 2 invalid {@param displayName}
+ * @rejection 3 invalid {@param password}
  */
 export function signUpRequest(instance, success, other, name, email, displayName, password) {
     if (!nameCheck(name))
@@ -206,11 +206,14 @@ export function getUserByAAT(instance, success, other, tokenGetter = getToken, t
  * @param tokenGetter
  * @param tokenRemover
  * @rejection 0 token not found
+ * @rejection 0 invalid {@param displayName}
  */
 export function setUser(instance, success, other, displayName, profile, tokenGetter = getToken, tokenRemover = removeToken) {
     const token = tokenGetter();
     if (token == null)
         return new Promise((_, reject) => { reject(new Rejection(0, "token not found")); });
+    if (!displayNameCheck(displayName))
+        return new Promise((_, reject) => { reject(new Rejection(1, displayName)); });
     return instance.post("set_user", { token: token, user: { displayName: displayName, profile: profile } }, (status) => {
         if (Status.success(status))
             success();
