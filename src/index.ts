@@ -13,6 +13,7 @@ export {
     signUpRequest,
     signUp,
     signIn,
+    athenaAuthToken,
     getUserByName,
     getUsers,
     getUsersWith,

@@ -120,6 +120,24 @@ export function signIn(instance, success, other, nameOrEmail, password, clientID
     });
 }
 /**
+ * Direct sign in.
+ * This requires an athena authentication token that is officially released.
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param athenaAuthToken
+ * @param clientID
+ * @param rt
+ */
+export function directSignIn(instance, success, other, athenaAuthToken, clientID, rt) {
+    return instance.post("direct_sign_in", { token: athenaAuthToken, clientID: clientID, rt: rt }, (status, message) => {
+        if (Status.success(status))
+            success(message);
+        else
+            other(status);
+    });
+}
+/**
  * Exchange athena authentication code for athena authentication token.
  * This API involves client secret, meaning that it is supposed to be called in the backend.
  * @param instance Athena instance
