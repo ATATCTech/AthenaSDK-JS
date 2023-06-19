@@ -129,7 +129,7 @@ export function signUp(
  */
 export function signIn(
     instance: Athena,
-    success: (t: string) => void,
+    success: (c: string) => void,
     other: (status: number) => void,
     nameOrEmail: string,
     password: string,
