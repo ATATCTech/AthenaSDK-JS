@@ -102,16 +102,35 @@ export function signUp(instance, success, other, requestToken, tokenSetter = set
  * @param other callback on other status
  * @param nameOrEmail
  * @param password
- * @param tokenSetter
+ * @param clientID
+ * @param rt
  * @rejection 0 invalid {@param nameOrEmail}
  * @rejection 1 invalid {@param password}
  */
-export function signIn(instance, success, other, nameOrEmail, password, tokenSetter = setToken) {
+export function signIn(instance, success, other, nameOrEmail, password, clientID, rt) {
     if (!nameCheck(nameOrEmail) && !emailCheck(nameOrEmail))
         return new Promise((_, reject) => { reject(new Rejection(0, nameOrEmail)); });
     if (!lengthCheck(password, 6, 64))
         return new Promise((_, reject) => { reject(new Rejection(1, password)); });
-    return instance.post("sign_in", { name: nameOrEmail, email: nameOrEmail, password: password }, (status, message) => {
+    return instance.post("sign_in", { name: nameOrEmail, email: nameOrEmail, password: password, clientID: clientID, rt: rt }, (status, message) => {
+        if (Status.success(status))
+            success(message);
+        else
+            other(status);
+    });
+}
+/**
+ * Exchange athena authentication code for athena authentication token.
+ * This API involves client secret, meaning that it is supposed to be called in the backend.
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param athenaAuthCode
+ * @param clientSecret
+ * @param tokenSetter
+ */
+export function athenaAuthToken(instance, success, other, athenaAuthCode, clientSecret, tokenSetter = setToken) {
+    return instance.post("aat", { token: athenaAuthCode, clientSecret: clientSecret }, (status, message) => {
         if (Status.success(status)) {
             tokenSetter(message);
             success(message);
