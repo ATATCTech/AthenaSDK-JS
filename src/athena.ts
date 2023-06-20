@@ -16,13 +16,13 @@ export class Athena {
     public get(ep: string, pathVariables: string[] = [], handler: (status: number, message: string) => void, except?: (reason: any) => void): Promise<void> {
         return axios.get(this.getEndpoint(ep) + "/" + pathVariables.join("/")).then((r) => {
             handler(r.data.status, r.data.message);
-        }).catch(except ? except : this.defaultExcept);
+        }).catch(except == null ? this.defaultExcept : except);
     }
 
     public post(ep: string, data: any, handler: (status: number, message: string) => void, except?: (reason: any) => void): Promise<void> {
         return axios.post(this.getEndpoint(ep), data).then((r) => {
             handler(r.data.status, r.data.message);
-        }).catch(except ? except : this.defaultExcept);
+        }).catch(except == null ? this.defaultExcept : except);
     }
 }
 

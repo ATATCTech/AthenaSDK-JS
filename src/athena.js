@@ -12,12 +12,12 @@ export class Athena {
     get(ep, pathVariables = [], handler, except) {
         return axios.get(this.getEndpoint(ep) + "/" + pathVariables.join("/")).then((r) => {
             handler(r.data.status, r.data.message);
-        }).catch(except ? except : this.defaultExcept);
+        }).catch(except == null ? this.defaultExcept : except);
     }
     post(ep, data, handler, except) {
         return axios.post(this.getEndpoint(ep), data).then((r) => {
             handler(r.data.status, r.data.message);
-        }).catch(except ? except : this.defaultExcept);
+        }).catch(except == null ? this.defaultExcept : except);
     }
 }
 export function useAthena(baseUrl = "https://athena2.atatctech.com", defaultExcept = () => { }) {
