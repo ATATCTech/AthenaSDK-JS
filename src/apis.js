@@ -145,17 +145,24 @@ export function directSignIn(instance, success, other, athenaAuthToken, clientID
  * @param other callback on other status
  * @param athenaAuthCode
  * @param clientSecret
- * @param tokenSetter
+ * @param wait blocks the thread
  */
-export function athenaAuthToken(instance, success, other, athenaAuthCode, clientSecret, tokenSetter = setToken) {
-    return instance.post("aat", { token: athenaAuthCode, clientSecret: clientSecret }, (status, message) => {
-        if (Status.success(status)) {
-            tokenSetter(message);
+export async function athenaAuthToken(instance, success, other, athenaAuthCode, clientSecret, wait = true) {
+    if (wait) {
+        const [status, message] = await instance._post("aat", { token: athenaAuthCode, clientSecret: clientSecret });
+        if (Status.success(status))
             success(message);
-        }
         else
             other(status);
-    });
+    }
+    else {
+        return instance.post("aat", { token: athenaAuthCode, clientSecret: clientSecret }, (status, message) => {
+            if (Status.success(status))
+                success(message);
+            else
+                other(status);
+        });
+    }
 }
 /**
  * Get user by name.

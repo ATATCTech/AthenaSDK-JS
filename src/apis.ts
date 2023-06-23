@@ -176,23 +176,26 @@ export function directSignIn(
  * @param other callback on other status
  * @param athenaAuthCode
  * @param clientSecret
- * @param tokenSetter
+ * @param wait blocks the thread
  */
-export function athenaAuthToken(
+export async function athenaAuthToken(
     instance: Athena,
     success: (t: string) => void,
     other: (status: number) => void,
     athenaAuthCode: string,
     clientSecret: string,
-    tokenSetter: (token: string) => void = setToken
+    wait: boolean = true
 ): Promise<void> {
-    return instance.post("aat", {token: athenaAuthCode, clientSecret: clientSecret}, (status, message) => {
-        if (Status.success(status)) {
-            tokenSetter(message);
-            success(message);
-        }
+    if (wait) {
+        const [status, message] = await instance._post("aat", {token: athenaAuthCode, clientSecret: clientSecret});
+        if (Status.success(status)) success(message);
         else other(status);
-    });
+    } else {
+        return instance.post("aat", {token: athenaAuthCode, clientSecret: clientSecret}, (status, message) => {
+            if (Status.success(status)) success(message);
+            else other(status);
+        });
+    }
 }
 
 /**
