@@ -18,7 +18,8 @@ export {
     getUserByName,
     getUsers,
     getUsersWith,
-    getUserByAAT
+    getUserByAAT,
+    setUser
 } from "./apis";
 
 export {
