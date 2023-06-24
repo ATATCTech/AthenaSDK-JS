@@ -278,19 +278,22 @@ export async function setUser(instance, success, other, displayName, profile, to
  * @param other callback on other status
  * @param name
  * @param tokenGetter
+ * @param tokenSetter
  * @param tokenRemover
  * @exception 0 token not found
  * @exception 1 invalid {@param name}
  */
-export async function setName(instance, success, other, name, tokenGetter = getToken, tokenRemover = removeToken) {
+export async function setName(instance, success, other, name, tokenGetter = getToken, tokenSetter = setToken, tokenRemover = removeToken) {
     const token = tokenGetter();
     if (token == null)
         throw new Rejection(0, "token not found");
     if (!nameCheck(name))
         throw new Rejection(1, name);
-    const [status] = await instance.post("set_name", { string: name, token: token });
-    if (Status.success(status))
+    const [status, message] = await instance.post("set_name", { string: name, token: token });
+    if (Status.success(status)) {
+        tokenSetter(message);
         success();
+    }
     else {
         if (status === 0)
             tokenRemover();
