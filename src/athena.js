@@ -1,34 +1,24 @@
 import axios from "axios";
 export class Athena {
     baseUrl;
-    defaultExcept;
-    constructor(baseUrl, defaultExcept = () => { }) {
+    port;
+    constructor(baseUrl, port) {
         this.baseUrl = baseUrl;
-        this.defaultExcept = defaultExcept;
+        this.port = port;
     }
     getEndpoint(ep) {
-        return this.baseUrl + "/" + ep;
+        return (this.port == null ? this.baseUrl : this.baseUrl + ":" + this.port) + "/" + ep;
     }
-    get(ep, pathVariables = [], handler, except) {
-        return axios.get(this.getEndpoint(ep) + "/" + pathVariables.join("/")).then((r) => {
-            handler(r.data.status, r.data.message);
-        }).catch(except == null ? this.defaultExcept : except);
-    }
-    post(ep, data, handler, except) {
-        return axios.post(this.getEndpoint(ep), data).then((r) => {
-            handler(r.data.status, r.data.message);
-        }).catch(except == null ? this.defaultExcept : except);
-    }
-    async _get(ep, pathVariables = []) {
+    async get(ep, pathVariables = []) {
         const r = await axios.get(this.getEndpoint(ep) + "/" + pathVariables.join("/"));
-        return [r.data.satus, r.data.message];
+        return [r.data.status, r.data.message];
     }
-    async _post(ep, data) {
+    async post(ep, data) {
         const r = await axios.post(this.getEndpoint(ep), data);
         return [r.data.status, r.data.message];
     }
 }
-export function useAthena(baseUrl = "https://athena2.atatctech.com", defaultExcept = () => { }) {
-    return new Athena(baseUrl, defaultExcept);
+export function useAthena(baseUrl = "https://athena2.atatctech.com", port) {
+    return new Athena(baseUrl, port);
 }
 //# sourceMappingURL=athena.js.map

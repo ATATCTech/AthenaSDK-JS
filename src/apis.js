@@ -1,23 +1,30 @@
 import Status from "./status";
 import { getToken, removeToken, setToken } from "./native";
 import { displayNameCheck, emailCheck, lengthCheck, nameCheck } from "./aaa";
-export class Rejection {
+export class Rejection extends Error {
     code;
     msg;
     constructor(code, msg = "") {
+        super(code + ": " + msg);
         this.code = code;
         this.msg = msg;
     }
 }
-export function test(instance, online, unavailable, other = () => { }, offline) {
-    return instance.get("", [], (status) => {
+export async function test(instance, online, unavailable, other = () => {
+}, offline) {
+    try {
+        const [status] = await instance.get("");
         if (Status.success(status))
             online();
         else if (Status.unavailable(status))
             unavailable();
         else
             other(status);
-    }, offline);
+    }
+    catch (e) {
+        if (offline != null)
+            offline(e);
+    }
 }
 /**
  * Check if such user exists.
@@ -26,21 +33,20 @@ export function test(instance, online, unavailable, other = () => { }, offline) 
  * @param not callback if the user does not exist
  * @param other callback on other status
  * @param nameOrEmail
- * @rejection 0 invalid {@param nameOrEmail}
+ * @exception 0 invalid {@param nameOrEmail}
  */
-export function userExists(instance, exists, not, other, nameOrEmail) {
+export async function userExists(instance, exists, not, other, nameOrEmail) {
     if (!nameCheck(nameOrEmail) && !emailCheck(nameOrEmail))
-        return new Promise((_, reject) => { reject(new Rejection(0, nameOrEmail)); });
-    return instance.get("user_exists", [nameOrEmail], (status, message) => {
-        if (Status.success(status)) {
-            if (message === "true")
-                exists();
-            else
-                not();
-        }
+        throw new Rejection(0, nameOrEmail);
+    const [status, message] = await instance.get("user_exists", [nameOrEmail]);
+    if (Status.success(status)) {
+        if (message === "true")
+            exists();
         else
-            other(status);
-    });
+            not();
+    }
+    else
+        other(status);
 }
 /**
  * Send an email request to sign up.
@@ -51,31 +57,30 @@ export function userExists(instance, exists, not, other, nameOrEmail) {
  * @param email
  * @param displayName
  * @param password
- * @rejection 0 invalid {@param name}
- * @rejection 1 invalid {@param email}
- * @rejection 2 invalid {@param displayName}
- * @rejection 3 invalid {@param password}
+ * @exception 0 invalid {@param name}
+ * @exception 1 invalid {@param email}
+ * @exception 2 invalid {@param displayName}
+ * @exception 3 invalid {@param password}
  */
-export function signUpRequest(instance, success, other, name, email, displayName, password) {
+export async function signUpRequest(instance, success, other, name, email, displayName, password) {
     if (!nameCheck(name))
-        return new Promise((_, reject) => { reject(new Rejection(0, name)); });
+        throw new Rejection(0, name);
     if (!emailCheck(email))
-        return new Promise((_, reject) => { reject(new Rejection(1, email)); });
+        throw new Rejection(1, email);
     if (!displayNameCheck(displayName))
-        return new Promise((_, reject) => { reject(new Rejection(2, displayName)); });
+        throw new Rejection(2, displayName);
     if (!lengthCheck(password, 6, 64))
-        return new Promise((_, reject) => { reject(new Rejection(3, password)); });
-    return instance.post("sign_up_request", {
+        throw new Rejection(3, password);
+    const [status] = await instance.post("sign_up_request", {
         name: name,
         email: email,
         displayName: displayName,
         password: password
-    }, (status) => {
-        if (Status.success(status))
-            success();
-        else
-            other(status);
     });
+    if (Status.success(status))
+        success();
+    else
+        other(status);
 }
 /**
  * Sign up.
@@ -85,15 +90,14 @@ export function signUpRequest(instance, success, other, name, email, displayName
  * @param requestToken
  * @param tokenSetter
  */
-export function signUp(instance, success, other, requestToken, tokenSetter = setToken) {
-    return instance.post("sign_up", { token: requestToken }, (status, message) => {
-        if (Status.success(status)) {
-            tokenSetter(message);
-            success(message);
-        }
-        else
-            other(status);
-    });
+export async function signUp(instance, success, other, requestToken, tokenSetter = setToken) {
+    const [status, message] = await instance.post("sign_up", { token: requestToken });
+    if (Status.success(status)) {
+        tokenSetter(message);
+        success(message);
+    }
+    else
+        other(status);
 }
 /**
  * Sign in.
@@ -104,20 +108,25 @@ export function signUp(instance, success, other, requestToken, tokenSetter = set
  * @param password
  * @param clientID
  * @param rt
- * @rejection 0 invalid {@param nameOrEmail}
- * @rejection 1 invalid {@param password}
+ * @exception 0 invalid {@param nameOrEmail}
+ * @exception 1 invalid {@param password}
  */
-export function signIn(instance, success, other, nameOrEmail, password, clientID, rt) {
+export async function signIn(instance, success, other, nameOrEmail, password, clientID, rt) {
     if (!nameCheck(nameOrEmail) && !emailCheck(nameOrEmail))
-        return new Promise((_, reject) => { reject(new Rejection(0, nameOrEmail)); });
+        throw new Rejection(0, nameOrEmail);
     if (!lengthCheck(password, 6, 64))
-        return new Promise((_, reject) => { reject(new Rejection(1, password)); });
-    return instance.post("sign_in", { name: nameOrEmail, email: nameOrEmail, password: password, clientID: clientID, rt: rt }, (status, message) => {
-        if (Status.success(status))
-            success(message);
-        else
-            other(status);
+        throw new Rejection(1, password);
+    const [status, message] = await instance.post("sign_in", {
+        name: nameOrEmail,
+        email: nameOrEmail,
+        password: password,
+        clientID: clientID,
+        rt: rt
     });
+    if (Status.success(status))
+        success(message);
+    else
+        other(status);
 }
 /**
  * Direct sign in.
@@ -130,16 +139,19 @@ export function signIn(instance, success, other, nameOrEmail, password, clientID
  * @param rt
  * @param tokenRemover
  */
-export function directSignIn(instance, success, other, athenaAuthToken, clientID, rt, tokenRemover = removeToken) {
-    return instance.post("direct_sign_in", { token: athenaAuthToken, clientID: clientID, rt: rt }, (status, message) => {
-        if (Status.success(status))
-            success(message);
-        else {
-            if (status === 0)
-                tokenRemover();
-            other(status);
-        }
+export async function directSignIn(instance, success, other, athenaAuthToken, clientID, rt, tokenRemover = removeToken) {
+    const [status, message] = await instance.post("direct_sign_in", {
+        token: athenaAuthToken,
+        clientID: clientID,
+        rt: rt
     });
+    if (Status.success(status))
+        success(message);
+    else {
+        if (status === 0)
+            tokenRemover();
+        other(status);
+    }
 }
 /**
  * Exchange athena authentication code for athena authentication token.
@@ -149,24 +161,13 @@ export function directSignIn(instance, success, other, athenaAuthToken, clientID
  * @param other callback on other status
  * @param athenaAuthCode
  * @param clientSecret
- * @param wait blocks the thread
  */
-export async function athenaAuthToken(instance, success, other, athenaAuthCode, clientSecret, wait = true) {
-    if (wait) {
-        const [status, message] = await instance._post("aat", { token: athenaAuthCode, clientSecret: clientSecret });
-        if (Status.success(status))
-            success(message);
-        else
-            other(status);
-    }
-    else {
-        return instance.post("aat", { token: athenaAuthCode, clientSecret: clientSecret }, (status, message) => {
-            if (Status.success(status))
-                success(message);
-            else
-                other(status);
-        });
-    }
+export async function athenaAuthToken(instance, success, other, athenaAuthCode, clientSecret) {
+    const [status, message] = await instance.post("aat", { token: athenaAuthCode, clientSecret: clientSecret });
+    if (Status.success(status))
+        success(message);
+    else
+        other(status);
 }
 /**
  * Get user by name.
@@ -174,17 +175,16 @@ export async function athenaAuthToken(instance, success, other, athenaAuthCode, 
  * @param success callback on success
  * @param other callback on other status
  * @param name
- * @rejection 0 invalid {@param name}
+ * @exception 0 invalid {@param name}
  */
-export function getUserByName(instance, success, other, name) {
+export async function getUserByName(instance, success, other, name) {
     if (!nameCheck(name))
-        return new Promise((_, reject) => { reject(new Rejection(0, name)); });
-    return instance.get("user", [name], (status, message) => {
-        if (Status.success(status))
-            success(JSON.parse(message));
-        else
-            other(status);
-    });
+        throw new Rejection(0, name);
+    const [status, message] = await instance.get("user", [name]);
+    if (Status.success(status))
+        success(JSON.parse(message));
+    else
+        other(status);
 }
 /**
  * Get users by names.
@@ -192,18 +192,17 @@ export function getUserByName(instance, success, other, name) {
  * @param success callback on success
  * @param other callback on other status
  * @param nameList
- * @rejection 0 invalid name in {@param nameList}
+ * @exception 0 invalid name in {@param nameList}
  */
-export function getUsers(instance, success, other, nameList) {
+export async function getUsers(instance, success, other, nameList) {
     for (let name of nameList)
         if (!nameCheck(name))
-            return new Promise((_, reject) => { reject(new Rejection(0, name)); });
-    return instance.get("users", [nameList.toString()], (status, message) => {
-        if (Status.success(status))
-            success(JSON.parse(message));
-        else
-            other(status);
-    });
+            throw new Rejection(0, name);
+    const [status, message] = await instance.get("users", [nameList.toString()]);
+    if (Status.success(status))
+        success(JSON.parse(message));
+    else
+        other(status);
 }
 /**
  * Get users with a certain filter.
@@ -213,13 +212,12 @@ export function getUsers(instance, success, other, nameList) {
  * @param keyword
  * @param filter
  */
-export function getUsersWith(instance, success, other, keyword, filter) {
-    return instance.get("users", [keyword, filter], (status, message) => {
-        if (Status.success(status))
-            success(JSON.parse(message));
-        else
-            other(status);
-    });
+export async function getUsersWith(instance, success, other, keyword, filter) {
+    const [status, message] = await instance.get("users", [keyword, filter]);
+    if (Status.success(status))
+        success(JSON.parse(message));
+    else
+        other(status);
 }
 /**
  * Get user object with AthenaAuthToken.
@@ -228,21 +226,20 @@ export function getUsersWith(instance, success, other, keyword, filter) {
  * @param other callback on other status
  * @param tokenGetter
  * @param tokenRemover
- * @rejection 0 token not found
+ * @exception 0 token not found
  */
-export function getUserByAAT(instance, success, other, tokenGetter = getToken, tokenRemover = removeToken) {
+export async function getUserByAAT(instance, success, other, tokenGetter = getToken, tokenRemover = removeToken) {
     const token = tokenGetter();
     if (token == null)
-        return new Promise((_, reject) => { reject(new Rejection(0, "token not found")); });
-    return instance.post("user", { token: token }, (status, message) => {
-        if (Status.success(status))
-            success(JSON.parse(message));
-        else {
-            if (status === 0)
-                tokenRemover();
-            other(status);
-        }
-    });
+        throw new Rejection(0, "token not found");
+    const [status, message] = await instance.post("user", { token: token });
+    if (Status.success(status))
+        success(JSON.parse(message));
+    else {
+        if (status === 0)
+            tokenRemover();
+        other(status);
+    }
 }
 /**
  * Set user's basic information.
@@ -253,23 +250,51 @@ export function getUserByAAT(instance, success, other, tokenGetter = getToken, t
  * @param profile
  * @param tokenGetter
  * @param tokenRemover
- * @rejection 0 token not found
- * @rejection 1 both {@param displayName} and {@param profile} are invalid
+ * @exception 0 token not found
+ * @exception 1 both {@param displayName} and {@param profile} are invalid
  */
-export function setUser(instance, success, other, displayName, profile, tokenGetter = getToken, tokenRemover = removeToken) {
+export async function setUser(instance, success, other, displayName, profile, tokenGetter = getToken, tokenRemover = removeToken) {
     const token = tokenGetter();
     if (token == null)
-        return new Promise((_, reject) => { reject(new Rejection(0, "token not found")); });
+        throw new Rejection(0, "token not found");
     if (!displayNameCheck(displayName) && !lengthCheck(profile, undefined, 65536))
-        return new Promise((_, reject) => { reject(new Rejection(1)); });
-    return instance.post("set_user", { token: token, user: { displayName: displayName, profile: profile } }, (status) => {
-        if (Status.success(status))
-            success();
-        else {
-            if (status === 0)
-                tokenRemover();
-            other(status);
-        }
+        throw new Rejection(1);
+    const [status] = await instance.post("set_user", {
+        token: token,
+        user: { displayName: displayName, profile: profile }
     });
+    if (Status.success(status))
+        success();
+    else {
+        if (status === 0)
+            tokenRemover();
+        other(status);
+    }
+}
+/**
+ * Set user's name.
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param name
+ * @param tokenGetter
+ * @param tokenRemover
+ * @exception 0 token not found
+ * @exception 1 invalid {@param name}
+ */
+export async function setName(instance, success, other, name, tokenGetter = getToken, tokenRemover = removeToken) {
+    const token = tokenGetter();
+    if (token == null)
+        throw new Rejection(0, "token not found");
+    if (!nameCheck(name))
+        throw new Rejection(1, name);
+    const [status] = await instance.post("set_name", { string: name, token: token });
+    if (Status.success(status))
+        success();
+    else {
+        if (status === 0)
+            tokenRemover();
+        other(status);
+    }
 }
 //# sourceMappingURL=apis.js.map
