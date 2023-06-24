@@ -292,7 +292,7 @@ export async function setName(instance, success, other, name, tokenGetter = getT
     const [status, message] = await instance.post("set_name", { string: name, token: token });
     if (Status.success(status)) {
         tokenSetter(message);
-        success();
+        success(message);
     }
     else {
         if (status === 0)

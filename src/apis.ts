@@ -338,7 +338,7 @@ export async function setUser(
  */
 export async function setName(
     instance: Athena,
-    success: () => void,
+    success: (t: string) => void,
     other: (status: number) => void,
     name: string,
     tokenGetter: () => string | null = getToken,
@@ -351,7 +351,7 @@ export async function setName(
     const [status, message] = await instance.post("set_name", {string: name, token: token});
     if (Status.success(status)) {
         tokenSetter(message);
-        success();
+        success(message);
     }
     else {
         if (status === 0) tokenRemover();
