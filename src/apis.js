@@ -128,13 +128,17 @@ export function signIn(instance, success, other, nameOrEmail, password, clientID
  * @param athenaAuthToken
  * @param clientID
  * @param rt
+ * @param tokenRemover
  */
-export function directSignIn(instance, success, other, athenaAuthToken, clientID, rt) {
+export function directSignIn(instance, success, other, athenaAuthToken, clientID, rt, tokenRemover = removeToken) {
     return instance.post("direct_sign_in", { token: athenaAuthToken, clientID: clientID, rt: rt }, (status, message) => {
         if (Status.success(status))
             success(message);
-        else
+        else {
+            if (status === 0)
+                tokenRemover();
             other(status);
+        }
     });
 }
 /**

@@ -153,6 +153,7 @@ export function signIn(
  * @param athenaAuthToken
  * @param clientID
  * @param rt
+ * @param tokenRemover
  */
 export function directSignIn(
     instance: Athena,
@@ -160,11 +161,15 @@ export function directSignIn(
     other: (status: number) => void,
     athenaAuthToken: string,
     clientID: string,
-    rt: string
+    rt: string,
+    tokenRemover: () => void = removeToken
 ): Promise<void> {
     return instance.post("direct_sign_in", {token: athenaAuthToken, clientID: clientID, rt: rt}, (status, message) => {
         if (Status.success(status)) success(message);
-        else other(status);
+        else {
+            if (status === 0) tokenRemover();
+            other(status);
+        }
     });
 }
 
