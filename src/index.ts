@@ -20,7 +20,8 @@ export {
     getUsersWith,
     getUserByAAT,
     setUser,
-    setName
+    setName,
+    revokeTokens
 } from "./apis";
 
 export {

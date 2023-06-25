@@ -41,10 +41,16 @@ const instance = useAthena(baseUrl, defaultExcept);
 ## APIs
 
 - `test()`
+- `userExists()`
 - `signUpRequest()`
 - `signUp()`
 - `signIn()`
+- `directSignIn()`
+- `athenaAuthToken()`
 - `getUserByName()`
 - `getUsers()`
 - `getUsersWith()`
 - `getUserByAAT()`
+- `setUser()`
+- `setName()`
+- `revokeTokens()`

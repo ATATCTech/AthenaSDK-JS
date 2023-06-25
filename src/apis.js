@@ -131,6 +131,7 @@ export async function signIn(instance, success, other, nameOrEmail, password, cl
 /**
  * Direct sign in.
  * This requires an athena authentication token that is officially released.
+ * *Require officially issued token.*
  * @param instance Athena instance
  * @param success callback on success
  * @param other callback on other status
@@ -243,6 +244,7 @@ export async function getUserByAAT(instance, success, other, tokenGetter = getTo
 }
 /**
  * Set user's basic information.
+ * *Require officially issued token.*
  * @param instance Athena instance
  * @param success callback on success
  * @param other callback on other status
@@ -273,6 +275,7 @@ export async function setUser(instance, success, other, displayName, profile, to
 }
 /**
  * Set user's name.
+ * *Require officially issued token.*
  * @param instance Athena instance
  * @param success callback on success
  * @param other callback on other status
@@ -293,6 +296,31 @@ export async function setName(instance, success, other, name, tokenGetter = getT
     if (Status.success(status)) {
         tokenSetter(message);
         success(message);
+    }
+    else {
+        if (status === 0)
+            tokenRemover();
+        other(status);
+    }
+}
+/**
+ * Revoke all tokens.
+ * *Require officially issued token.*
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param tokenGetter
+ * @param tokenRemover
+ * @exception 0 token not found
+ */
+export async function revokeTokens(instance, success, other, tokenGetter = getToken, tokenRemover = removeToken) {
+    const token = tokenGetter();
+    if (token == null)
+        throw new Rejection(0, "token not found");
+    const [status] = await instance.post("revoke_tokens", { token: token });
+    if (Status.success(status)) {
+        tokenRemover();
+        success();
     }
     else {
         if (status === 0)
