@@ -363,6 +363,7 @@ export async function setName(
 
 /**
  * Send a verification email to change email address. The email will be sent to the new email address.
+ * *Require officially issued token.*
  * @param instance Athena instance
  * @param success callback on success
  * @param other callback on other status
@@ -371,6 +372,8 @@ export async function setName(
  * @param email
  * @param tokenGetter
  * @param tokenRemover
+ * @exception 0 token not found
+ * @exception 1 invalid {@param email}
  */
 export async function setEmailRequest(
     instance: Athena,
@@ -407,6 +410,59 @@ export async function setEmail(
     requestToken: string,
 ): Promise<void> {
     const [status] = await instance.post("set_email", {token: requestToken});
+    if (Status.success(status)) success();
+    else other(status);
+}
+
+/**
+ * Send a verification email to change password.
+ * *Require officially issued token.*
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param success
+ * @param other
+ * @param password
+ * @param tokenGetter
+ * @param tokenRemover
+ * @exception 0 token not found
+ * @exception 1 invalid {@param password}
+ */
+export async function setPasswordRequest(
+    instance: Athena,
+    success: () => void,
+    other: (status: number) => void,
+    password: string,
+    tokenGetter: () => string | null = getToken,
+    tokenRemover: () => void = removeToken
+): Promise<void> {
+    const token = tokenGetter();
+    if (token == null) throw new Rejection(0, "token not found");
+    if (!lengthCheck(password, 6, 64)) throw new Rejection(1, password);
+    const [status] = await instance.post("set_password_request", {string: password, token: token});
+    if (Status.success(status)) success();
+    else {
+        if (status === 0) tokenRemover();
+        other(status);
+    }
+}
+
+/**
+ * Change user's password.
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param success
+ * @param other
+ * @param requestToken
+ */
+export async function setPassword(
+    instance: Athena,
+    success: () => void,
+    other: (status: number) => void,
+    requestToken: string,
+): Promise<void> {
+    const [status] = await instance.post("set_password", {token: requestToken});
     if (Status.success(status)) success();
     else other(status);
 }

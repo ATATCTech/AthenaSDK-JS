@@ -305,6 +305,7 @@ export async function setName(instance, success, other, name, tokenGetter = getT
 }
 /**
  * Send a verification email to change email address. The email will be sent to the new email address.
+ * *Require officially issued token.*
  * @param instance Athena instance
  * @param success callback on success
  * @param other callback on other status
@@ -313,6 +314,8 @@ export async function setName(instance, success, other, name, tokenGetter = getT
  * @param email
  * @param tokenGetter
  * @param tokenRemover
+ * @exception 0 token not found
+ * @exception 1 invalid {@param email}
  */
 export async function setEmailRequest(instance, success, other, email, tokenGetter = getToken, tokenRemover = removeToken) {
     const token = tokenGetter();
@@ -340,6 +343,51 @@ export async function setEmailRequest(instance, success, other, email, tokenGett
  */
 export async function setEmail(instance, success, other, requestToken) {
     const [status] = await instance.post("set_email", { token: requestToken });
+    if (Status.success(status))
+        success();
+    else
+        other(status);
+}
+/**
+ * Send a verification email to change password.
+ * *Require officially issued token.*
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param success
+ * @param other
+ * @param password
+ * @param tokenGetter
+ * @param tokenRemover
+ * @exception 0 token not found
+ * @exception 1 invalid {@param password}
+ */
+export async function setPasswordRequest(instance, success, other, password, tokenGetter = getToken, tokenRemover = removeToken) {
+    const token = tokenGetter();
+    if (token == null)
+        throw new Rejection(0, "token not found");
+    if (!lengthCheck(password, 6, 64))
+        throw new Rejection(1, password);
+    const [status] = await instance.post("set_password_request", { string: password, token: token });
+    if (Status.success(status))
+        success();
+    else {
+        if (status === 0)
+            tokenRemover();
+        other(status);
+    }
+}
+/**
+ * Change user's password.
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param success
+ * @param other
+ * @param requestToken
+ */
+export async function setPassword(instance, success, other, requestToken) {
+    const [status] = await instance.post("set_password", { token: requestToken });
     if (Status.success(status))
         success();
     else

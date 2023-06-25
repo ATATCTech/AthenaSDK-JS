@@ -23,6 +23,8 @@ export {
     setName,
     setEmailRequest,
     setEmail,
+    setPasswordRequest,
+    setPassword,
     revokeTokens
 } from "./apis";
 
