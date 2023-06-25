@@ -49,7 +49,7 @@ export async function userExists(instance, exists, not, other, nameOrEmail) {
         other(status);
 }
 /**
- * Send an email request to sign up.
+ * Send a verification email to sign up.
  * @param instance Athena instance
  * @param success callback on success
  * @param other callback on other status
@@ -274,7 +274,7 @@ export async function setUser(instance, success, other, displayName, profile, to
     }
 }
 /**
- * Set user's name.
+ * Change user's name.
  * *Require officially issued token.*
  * @param instance Athena instance
  * @param success callback on success
@@ -302,6 +302,48 @@ export async function setName(instance, success, other, name, tokenGetter = getT
             tokenRemover();
         other(status);
     }
+}
+/**
+ * Send a verification email to change email address. The email will be sent to the new email address.
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param success
+ * @param other
+ * @param email
+ * @param tokenGetter
+ * @param tokenRemover
+ */
+export async function setEmailRequest(instance, success, other, email, tokenGetter = getToken, tokenRemover = removeToken) {
+    const token = tokenGetter();
+    if (token == null)
+        throw new Rejection(0, "token not found");
+    if (!emailCheck(email))
+        throw new Rejection(1, email);
+    const [status] = await instance.post("set_email_request", { string: email, token: token });
+    if (Status.success(status))
+        success();
+    else {
+        if (status === 0)
+            tokenRemover();
+        other(status);
+    }
+}
+/**
+ * Change user's email address.
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param success
+ * @param other
+ * @param requestToken
+ */
+export async function setEmail(instance, success, other, requestToken) {
+    const [status] = await instance.post("set_email", { token: requestToken });
+    if (Status.success(status))
+        success();
+    else
+        other(status);
 }
 /**
  * Revoke all tokens.

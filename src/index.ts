@@ -21,6 +21,8 @@ export {
     getUserByAAT,
     setUser,
     setName,
+    setEmailRequest,
+    setEmail,
     revokeTokens
 } from "./apis";
 

@@ -58,7 +58,7 @@ export async function userExists(
 }
 
 /**
- * Send an email request to sign up.
+ * Send a verification email to sign up.
  * @param instance Athena instance
  * @param success callback on success
  * @param other callback on other status
@@ -327,7 +327,7 @@ export async function setUser(
 }
 
 /**
- * Set user's name.
+ * Change user's name.
  * *Require officially issued token.*
  * @param instance Athena instance
  * @param success callback on success
@@ -359,6 +359,56 @@ export async function setName(
         if (status === 0) tokenRemover();
         other(status);
     }
+}
+
+/**
+ * Send a verification email to change email address. The email will be sent to the new email address.
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param success
+ * @param other
+ * @param email
+ * @param tokenGetter
+ * @param tokenRemover
+ */
+export async function setEmailRequest(
+    instance: Athena,
+    success: () => void,
+    other: (status: number) => void,
+    email: string,
+    tokenGetter: () => string | null = getToken,
+    tokenRemover: () => void = removeToken
+): Promise<void> {
+    const token = tokenGetter();
+    if (token == null) throw new Rejection(0, "token not found");
+    if (!emailCheck(email)) throw new Rejection(1, email);
+    const [status] = await instance.post("set_email_request", {string: email, token: token});
+    if (Status.success(status)) success();
+    else {
+        if (status === 0) tokenRemover();
+        other(status);
+    }
+}
+
+/**
+ * Change user's email address.
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param success
+ * @param other
+ * @param requestToken
+ */
+export async function setEmail(
+    instance: Athena,
+    success: () => void,
+    other: (status: number) => void,
+    requestToken: string,
+): Promise<void> {
+    const [status] = await instance.post("set_email", {token: requestToken});
+    if (Status.success(status)) success();
+    else other(status);
 }
 
 /**

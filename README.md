@@ -53,4 +53,6 @@ const instance = useAthena(baseUrl, defaultExcept);
 - `getUserByAAT()`
 - `setUser()`
 - `setName()`
+- `setEmailRequest()`
+- `setEmail()`
 - `revokeTokens()`
