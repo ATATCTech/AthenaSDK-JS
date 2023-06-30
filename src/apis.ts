@@ -370,28 +370,22 @@ export async function setName(
  * @param success
  * @param other
  * @param email
- * @param tokenGetter
- * @param tokenRemover
- * @exception 0 token not found
- * @exception 1 invalid {@param email}
+ * @param newEmail
+ * @exception 0 invalid {@param email}
+ * @exception 1 invalid {@param newEmail}
  */
 export async function setEmailRequest(
     instance: Athena,
     success: () => void,
     other: (status: number) => void,
     email: string,
-    tokenGetter: () => string | null = getToken,
-    tokenRemover: () => void = removeToken
+    newEmail: string
 ): Promise<void> {
-    const token = tokenGetter();
-    if (token == null) throw new Rejection(0, "token not found");
-    if (!emailCheck(email)) throw new Rejection(1, email);
-    const [status] = await instance.post("set_email_request", {string: email, token: token});
+    if (!emailCheck(email)) throw new Rejection(0, email);
+    if (!emailCheck(newEmail)) throw new Rejection(1, newEmail);
+    const [status] = await instance.post("set_email_request", {string: email, newString: newEmail});
     if (Status.success(status)) success();
-    else {
-        if (status === 0) tokenRemover();
-        other(status);
-    }
+    else other(status);
 }
 
 /**
@@ -422,29 +416,23 @@ export async function setEmail(
  * @param other callback on other status
  * @param success
  * @param other
+ * @param email
  * @param password
- * @param tokenGetter
- * @param tokenRemover
- * @exception 0 token not found
+ * @exception 0 invalid {@param email}
  * @exception 1 invalid {@param password}
  */
 export async function setPasswordRequest(
     instance: Athena,
     success: () => void,
     other: (status: number) => void,
-    password: string,
-    tokenGetter: () => string | null = getToken,
-    tokenRemover: () => void = removeToken
+    email: string,
+    password: string
 ): Promise<void> {
-    const token = tokenGetter();
-    if (token == null) throw new Rejection(0, "token not found");
+    if (!emailCheck(email)) throw new Rejection(0, email);
     if (!lengthCheck(password, 6, 64)) throw new Rejection(1, password);
-    const [status] = await instance.post("set_password_request", {string: password, token: token});
+    const [status] = await instance.post("set_password_request", {string: email, newString: password});
     if (Status.success(status)) success();
-    else {
-        if (status === 0) tokenRemover();
-        other(status);
-    }
+    else other(status);
 }
 
 /**
