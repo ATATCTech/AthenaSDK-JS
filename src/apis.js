@@ -312,20 +312,25 @@ export async function setName(instance, success, other, name, tokenGetter = getT
  * @param success
  * @param other
  * @param email
- * @param newEmail
- * @exception 0 invalid {@param email}
- * @exception 1 invalid {@param newEmail}
+ * @param tokenGetter
+ * @param tokenRemover
+ * @exception 0 token not found
+ * @exception 1 invalid {@param email}
  */
-export async function setEmailRequest(instance, success, other, email, newEmail) {
+export async function setEmailRequest(instance, success, other, email, tokenGetter = getToken, tokenRemover = removeToken) {
+    const token = tokenGetter();
+    if (token == null)
+        throw new Rejection(0, "token not found");
     if (!emailCheck(email))
-        throw new Rejection(0, email);
-    if (!emailCheck(newEmail))
-        throw new Rejection(1, newEmail);
-    const [status] = await instance.post("set_email_request", { string: email, newString: newEmail });
+        throw new Rejection(1, email);
+    const [status] = await instance.post("set_email_request", { string: email, token: token });
     if (Status.success(status))
         success();
-    else
+    else {
+        if (status === 0)
+            tokenRemover();
         other(status);
+    }
 }
 /**
  * Change user's email address.
