@@ -7,7 +7,7 @@ export function emailCheck(email: string | null): boolean {
 }
 
 export function displayableCheck(string: string | null): boolean {
-    return string != null && /\S+/.test(string);
+    return string != null && /^[\S ]+$/.test(string);
 }
 
 export function displayNameCheck(displayName: string | null, minLength: number = 3, maxLength: number = 36): boolean {
@@ -19,5 +19,9 @@ export function nameCheck(name: string | null, minLength: number = 3, maxLength:
 }
 
 export function urlCheck(url: string | null, prefix: string | null = "https://"): boolean {
-    return prefix != null && lengthCheck(url, prefix.length + 1, 1024) && new RegExp("^" + prefix + "[\\w!#$%&'*+\\-/=?^`{|}~.]+").test(url as string);
+    return prefix != null && lengthCheck(url, prefix.length + 1, 8182) && new RegExp("^" + prefix + "[\\w!#$%&'*+\\-/=?^`{|}~.]+$").test(url as string);
+}
+
+export function mobileCheck(mobile: string | null) {
+    return lengthCheck(mobile, 7, 16) && /^\+?[0-9]+$/.test(mobile as string);
 }
