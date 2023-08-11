@@ -12,13 +12,13 @@ export class Athena {
     }
 
     public async get(ep: string, pathVariables: string[] = []): Promise<[number, string]> {
-        const r = await fetch(this.getEndpoint(ep) + "/" + pathVariables.join("/"));
-        return [(await r.json()).status, (await r.json()).message];
+        const r = await (await fetch(this.getEndpoint(ep) + "/" + pathVariables.join("/"))).json();
+        return [r.status, r.message];
     }
 
     public async post(ep: string, data: any): Promise<[number, string]> {
-        const r = await fetch(this.getEndpoint(ep), {method: "POST", body: data});
-        return [(await r.json()).status, (await r.json()).message];
+        const r = await (await fetch(this.getEndpoint(ep), {method: "POST", body: data})).json();
+        return [r.status, r.message];
     }
 }
 

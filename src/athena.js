@@ -9,12 +9,12 @@ export class Athena {
         return (this.port == null ? this.baseUrl : this.baseUrl + ":" + this.port) + "/" + ep;
     }
     async get(ep, pathVariables = []) {
-        const r = await fetch(this.getEndpoint(ep) + "/" + pathVariables.join("/"));
-        return [(await r.json()).status, (await r.json()).message];
+        const r = await (await fetch(this.getEndpoint(ep) + "/" + pathVariables.join("/"))).json();
+        return [r.status, r.message];
     }
     async post(ep, data) {
-        const r = await fetch(this.getEndpoint(ep), { method: "POST", body: data });
-        return [(await r.json()).status, (await r.json()).message];
+        const r = await (await fetch(this.getEndpoint(ep), { method: "POST", body: data })).json();
+        return [r.status, r.message];
     }
 }
 export function useAthena(baseUrl = "https://athena2.atatctech.com", port) {
