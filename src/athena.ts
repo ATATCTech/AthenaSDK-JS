@@ -1,5 +1,3 @@
-import axios from "axios";
-
 export class Athena {
     private readonly baseUrl: string;
     private readonly port?: number;
@@ -14,13 +12,13 @@ export class Athena {
     }
 
     public async get(ep: string, pathVariables: string[] = []): Promise<[number, string]> {
-        const r = await axios.get(this.getEndpoint(ep) + "/" + pathVariables.join("/"));
-        return [r.data.status, r.data.message];
+        const r = await fetch(this.getEndpoint(ep) + "/" + pathVariables.join("/"));
+        return [(await r.json()).status, (await r.json()).message];
     }
 
     public async post(ep: string, data: any): Promise<[number, string]> {
-        const r = await axios.post(this.getEndpoint(ep), data);
-        return [r.data.status, r.data.message];
+        const r = await fetch(this.getEndpoint(ep), {method: "POST", body: data});
+        return [(await r.json()).status, (await r.json()).message];
     }
 }
 
