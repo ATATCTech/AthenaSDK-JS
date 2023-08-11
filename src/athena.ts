@@ -17,7 +17,9 @@ export class Athena {
     }
 
     public async post(ep: string, data: any): Promise<[number, string]> {
-        const r = await (await fetch(this.getEndpoint(ep), {method: "POST", body: data})).json();
+        const r = await (await fetch(this.getEndpoint(ep), {method: "POST", body: JSON.stringify(data), headers: {
+                'Content-Type': 'application/json'
+            }})).json();
         return [r.status, r.message];
     }
 }
