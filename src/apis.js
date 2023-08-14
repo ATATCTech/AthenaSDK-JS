@@ -1,6 +1,6 @@
 import Status from "./status";
 import { getToken, removeToken, setToken } from "./native";
-import { displayNameCheck, emailCheck, lengthCheck, nameCheck } from "./aaa";
+import { displayNameCheck, emailCheck, lengthCheck, nameCheck } from "./dataCheck";
 export class Rejection extends Error {
     code;
     msg;
@@ -13,7 +13,7 @@ export class Rejection extends Error {
 export async function test(instance, online, unavailable, other = () => {
 }, offline) {
     try {
-        const [status] = await instance.get("");
+        const [status] = await instance.get("/online");
         if (Status.success(status))
             online();
         else if (Status.unavailable(status))

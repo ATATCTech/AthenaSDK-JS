@@ -19,4 +19,4 @@ export function urlCheck(url, prefix = "https://") {
 export function mobileCheck(mobile) {
     return lengthCheck(mobile, 7, 16) && /^\+?[0-9]+$/.test(mobile);
 }
-//# sourceMappingURL=aaa.js.map
+//# sourceMappingURL=dataCheck.js.map

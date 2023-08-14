@@ -2,7 +2,7 @@ import {User} from "./types";
 import Status from "./status";
 import {getToken, removeToken, setToken} from "./native";
 import {Athena} from "./athena";
-import {displayNameCheck, emailCheck, lengthCheck, nameCheck} from "./aaa";
+import {displayNameCheck, emailCheck, lengthCheck, nameCheck} from "./dataCheck";
 
 export class Rejection extends Error {
     public readonly code: number;
@@ -24,7 +24,7 @@ export async function test(
     offline?: (reason: any) => void,
 ): Promise<void> {
     try {
-        const [status] = await instance.get("");
+        const [status] = await instance.get("/online");
         if (Status.success(status)) online();
         else if (Status.unavailable(status)) unavailable();
         else other(status);

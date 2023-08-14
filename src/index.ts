@@ -5,7 +5,7 @@ export {
     displayNameCheck,
     nameCheck,
     urlCheck
-} from "./aaa"
+} from "./dataCheck"
 
 export {
     test,
