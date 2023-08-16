@@ -5,7 +5,7 @@ export function emailCheck(email) {
     return lengthCheck(email, 5, 320) && /^[\w!#$%&'*+\-/=?^`{|}~]+(\.[\w!#$%&'*+\-/=?^`{|}~]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]+$/.test(email);
 }
 export function displayableCheck(string) {
-    return string != null && /^[\S ]+$/.test(string);
+    return string != null && /^[\S ]*$/.test(string);
 }
 export function displayNameCheck(displayName, minLength = 3, maxLength = 36) {
     return lengthCheck(displayName, minLength, maxLength) && displayableCheck(displayName);

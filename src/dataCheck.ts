@@ -7,7 +7,7 @@ export function emailCheck(email: string | null): boolean {
 }
 
 export function displayableCheck(string: string | null): boolean {
-    return string != null && /^[\S ]+$/.test(string);
+    return string != null && /^[\S ]*$/.test(string);
 }
 
 export function displayNameCheck(displayName: string | null, minLength: number = 3, maxLength: number = 36): boolean {
