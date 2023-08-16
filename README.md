@@ -25,18 +25,21 @@ test(instance,
 ### Create an Instance
 
 ```javascript
-const baseUrl = "http://localhost:8080";
-const defaultExcept = (r: any) => {
-    console.log("Err");
-    console.log(r);
-};
+const baseUrl = "http://localhost";
+const port = 8080;
 
-const instance = useAthena(baseUrl, defaultExcept);
+const instance = useAthena(baseUrl, port);
 ```
 
-`baseUrl` refers to the backend server address. In this case, it is set to "http://localhost:8080" instead of "https://athena2.atatctech.com" by default.
+`baseUrl` refers to the backend server address. In this case, it is set to "http://localhost" instead of "https://athena2.atatctech.com" by default.
 
-`defaultExcept` is the method that is called when an error occurs for all APIs if not specified.
+`port` specifies the port that the server listens.
+
+The following example is equivalent to the one above.
+
+```javascript
+const instance = useAthena("http://localhost:8080");
+```
 
 ## APIs
 
