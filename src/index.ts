@@ -4,7 +4,9 @@ export {
     displayableCheck,
     displayNameCheck,
     nameCheck,
-    urlCheck
+    urlCheck,
+    mobileCheck,
+    uidCheck
 } from "./dataCheck"
 
 export {
@@ -16,7 +18,9 @@ export {
     directSignIn,
     athenaAuthToken,
     getUserByName,
+    getUserByUID,
     getUsers,
+    getUsersByUIDs,
     getUsersWith,
     getUserByAAT,
     setUser,

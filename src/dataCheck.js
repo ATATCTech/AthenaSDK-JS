@@ -19,4 +19,7 @@ export function urlCheck(url, prefix = "https://") {
 export function mobileCheck(mobile) {
     return lengthCheck(mobile, 7, 16) && /^\+?[0-9]+$/.test(mobile);
 }
+export function uidCheck(uid) {
+    return uid != null && uid.startsWith("asnuid_");
+}
 //# sourceMappingURL=dataCheck.js.map

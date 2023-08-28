@@ -22,6 +22,10 @@ export function urlCheck(url: string | null, prefix: string | null = "https://")
     return prefix != null && lengthCheck(url, prefix.length + 1, 8182) && new RegExp("^" + prefix + "[\\w!#$%&'*+\\-/=?^`{|}~.]+$").test(url as string);
 }
 
-export function mobileCheck(mobile: string | null) {
+export function mobileCheck(mobile: string | null): boolean {
     return lengthCheck(mobile, 7, 16) && /^\+?[0-9]+$/.test(mobile as string);
+}
+
+export function uidCheck(uid: string | null): boolean {
+    return uid != null && uid.startsWith("asnuid_");
 }

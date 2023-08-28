@@ -2,7 +2,7 @@ import {User} from "./types";
 import Status from "./status";
 import {getToken, removeToken, setToken} from "./native";
 import {Athena} from "./athena";
-import {displayNameCheck, emailCheck, lengthCheck, nameCheck} from "./dataCheck";
+import {displayNameCheck, emailCheck, lengthCheck, nameCheck, uidCheck} from "./dataCheck";
 
 export class Rejection extends Error {
     public readonly code: number;
@@ -225,6 +225,26 @@ export async function getUserByName(
 }
 
 /**
+ * Get user by uid.
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param uid
+ * @exception 0 invalid {@param name}
+ */
+export async function getUserByUID(
+    instance: Athena,
+    success: (u: User) => void,
+    other: (status: number) => void,
+    uid: string
+): Promise<void> {
+    if (!uidCheck(uid)) throw new Rejection(0, uid);
+    const [status, message] = await instance.get("_user", [uid]);
+    if (Status.success(status)) success(JSON.parse(message));
+    else other(status);
+}
+
+/**
  * Get users by names.
  * @param instance Athena instance
  * @param success callback on success
@@ -240,6 +260,26 @@ export async function getUsers(
 ): Promise<void> {
     for (let name of nameList) if (!nameCheck(name)) throw new Rejection(0, name);
     const [status, message] = await instance.get("users", [nameList.toString()]);
+    if (Status.success(status)) success(JSON.parse(message));
+    else other(status);
+}
+
+/**
+ * Get users by uids.
+ * @param instance Athena instance
+ * @param success callback on success
+ * @param other callback on other status
+ * @param uidList
+ * @exception 0 invalid uid in {@param uidList}
+ */
+export async function getUsersByUIDs(
+    instance: Athena,
+    success: (u: User[]) => void,
+    other: (status: number) => void,
+    uidList: string[]
+): Promise<void> {
+    for (let uid of uidList) if (!uidCheck(uid)) throw new Rejection(0, uid);
+    const [status, message] = await instance.get("_users", [uidList.toString()]);
     if (Status.success(status)) success(JSON.parse(message));
     else other(status);
 }

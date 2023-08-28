@@ -51,7 +51,9 @@ const instance = useAthena("http://localhost:8080");
 - `directSignIn()`
 - `athenaAuthToken()`
 - `getUserByName()`
+- `getUserByUID()`
 - `getUsers()`
+- `getUsersByUIDs()`
 - `getUsersWith()`
 - `getUserByAAT()`
 - `setUser()`
