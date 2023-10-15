@@ -15,6 +15,8 @@ export default class Status {
                 return stringStatus === "UNKNOWN_ERROR";
             case 16:
                 return stringStatus === "UNAVAILABLE";
+            case 17:
+                return stringStatus === "BLOCKED";
             default:
                 return stringStatus === "UNKNOWN";
         }
